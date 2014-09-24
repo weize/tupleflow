@@ -1,0 +1,7 @@
+{
+	"input": "/usr/dan/users7/wkong/work1/tupleflow/data/run.param",
+	"mode" : "threaded",
+	"distrib" : 2,
+	"deleteJobDir" : false
+
+}
