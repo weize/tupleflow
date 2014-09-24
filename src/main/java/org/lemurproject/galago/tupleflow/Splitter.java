@@ -11,30 +11,30 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class Splitter<T> implements Processor<T> {
 
-  private Processor<T>[] processors;
-  private Order<T> typeOrder;
-  long count;
+    private Processor<T>[] processors;
+    private Order<T> typeOrder;
+    long count;
 
-  public Splitter(Processor<T>[] processors, Order<T> order) {
-    this.processors = processors;
-    this.typeOrder = order;
-    count = 0;
-  }
+    public Splitter(Processor<T>[] processors, Order<T> order) {
+        this.processors = processors;
+        this.typeOrder = order;
+        count = 0;
+    }
 
-  public static <S> Splitter<S> splitToFiles(String[] filenames, Order<S> sortOrder, Order<S> hashOrder, CompressionType c) throws IOException, IncompatibleProcessorException {
-    return splitToFiles(filenames, sortOrder, hashOrder, null, c);
-  }
+    public static <S> Splitter<S> splitToFiles(String[] filenames, Order<S> sortOrder, Order<S> hashOrder, CompressionType c) throws IOException, IncompatibleProcessorException {
+        return splitToFiles(filenames, sortOrder, hashOrder, null, c);
+    }
 
-  @SuppressWarnings("unchecked")
-  public static <S> Splitter<S> splitToFiles(String[] filenames, Order<S> sortOrder, Order<S> hashOrder, Class reducerClass, CompressionType c) throws IOException, IncompatibleProcessorException {
-    assert sortOrder != null;
-    assert hashOrder != null;
+    @SuppressWarnings("unchecked")
+    public static <S> Splitter<S> splitToFiles(String[] filenames, Order<S> sortOrder, Order<S> hashOrder, Class reducerClass, CompressionType c) throws IOException, IncompatibleProcessorException {
+        assert sortOrder != null;
+        assert hashOrder != null;
 
-    Processor[] processors = new Processor[filenames.length];
+        Processor[] processors = new Processor[filenames.length];
 
 //    try {
-    for (int i = 0; i < filenames.length; i++) {
-      FileOrderedWriter<S> writer = new FileOrderedWriter<S>(filenames[i], sortOrder, c);
+        for (int i = 0; i < filenames.length; i++) {
+            FileOrderedWriter<S> writer = new FileOrderedWriter<S>(filenames[i], sortOrder, c);
 //        Sorter sorter;
 //        if (reducerClass != null) {
 //          sorter = new Sorter<S>(sortOrder, (Reducer<S>) reducerClass.getConstructor().
@@ -44,8 +44,8 @@ public class Splitter<T> implements Processor<T> {
 //        }
 //        sorter.setProcessor(writer);
 //        processors[i] = sorter;
-      processors[i] = writer;
-    }
+            processors[i] = writer;
+        }
 //    } catch (NoSuchMethodException e) {
 //      throw new IOException(e.getMessage());
 //    } catch (InvocationTargetException e) {
@@ -56,52 +56,56 @@ public class Splitter<T> implements Processor<T> {
 //      throw new IOException(e.getMessage());
 //    }
 
-    return new Splitter<S>(processors, hashOrder);
-  }
+        return new Splitter<S>(processors, hashOrder);
+    }
 
-  @SuppressWarnings("unchecked")
-  public static <S> Splitter splitToFiles(String prefix, Order<S> order, int count, CompressionType c) throws IOException, FileNotFoundException, IncompatibleProcessorException {
-    assert order != null;
+    @SuppressWarnings("unchecked")
+    public static <S> Splitter splitToFiles(String prefix, Order<S> order, int count, CompressionType c) throws IOException, FileNotFoundException, IncompatibleProcessorException {
+        assert order != null;
 
-    Processor[] processors = new Processor[count];
+        Processor[] processors = new Processor[count];
 
-    for (int i = 0; i < count; i++) {
-      String filename = prefix + i;
-      FileOrderedWriter<S> writer = new FileOrderedWriter<S>(filename, order, c);
+        for (int i = 0; i < count; i++) {
+            String filename = prefix + i;
+            FileOrderedWriter<S> writer = new FileOrderedWriter<S>(filename, order, c);
 //            Sorter<S> sorter = new Sorter<S>(order);
 //            sorter.setProcessor(writer);
 //            processors[i] = sorter;
-      processors[i] = writer;
+            processors[i] = writer;
+        }
+
+        return new Splitter<S>(processors, order);
     }
 
-    return new Splitter<S>(processors, order);
-  }
+    @Override
+    public void process(T object) throws IOException {
+        System.err.println(String.format("count for \"%s\": %d", object.toString(), count));
+        long hash = count % processors.length;
+        System.err.println(String.format("processed by processor %d", hash));
+        processors[(int) hash].process(object);
+        count++;
 
-//  @Override
+    }
+
+    @Override
 //  public void process(T object) throws IOException {
-//    long hash = count % processors.length;
-//    processors[(int)hash].process(object);
+//    int hash = typeOrder.hash(object);
+//    if (hash < 0) {
+//      hash = ~hash; // using bitwise complement, because -Integer.MIN_VALUE is still negative
+//    }
+//    assert hash >= 0 : "Just absed the hash value, so this should always be true";
+//    System.err.println(String.format("hash for \"%s\": %d", object.toString(), hash));
+//    hash = hash % processors.length;
+//    assert hash >= 0 : "Mod operation made it negative!";
+//    System.err.println(String.format("processed by processor %d", hash));
+//    processors[hash].process(object);
 //  }
-  
-  @Override
-  public void process(T object) throws IOException {
-    int hash = typeOrder.hash(object);
-    if (hash < 0) {
-      hash = ~hash; // using bitwise complement, because -Integer.MIN_VALUE is still negative
-    }
-    assert hash >= 0 : "Just absed the hash value, so this should always be true";
-    System.err.println(String.format("hash for \"%s\": %d", object.toString(), hash));
-    hash = hash % processors.length;
-    assert hash >= 0 : "Mod operation made it negative!";
-    System.err.println(String.format("processed by processor %d", hash));
-    processors[hash].process(object);
-  }
 
-  @Override
-  public void close() throws IOException {
-    for (Processor<T> processor : processors) {
-      processor.close();
+    @Override
+    public void close() throws IOException {
+        for (Processor<T> processor : processors) {
+            processor.close();
+        }
+        processors = null;
     }
-    processors = null;
-  }
 }
