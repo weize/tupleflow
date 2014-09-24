@@ -77,23 +77,25 @@ public class Splitter<T> implements Processor<T> {
     return new Splitter<S>(processors, order);
   }
 
-  @Override
-  public void process(T object) throws IOException {
-    long hash = count % processors.length;
-    processors[(int)hash].process(object);
-  }
-  
 //  @Override
 //  public void process(T object) throws IOException {
-//    int hash = typeOrder.hash(object);
-//    if (hash < 0) {
-//      hash = ~hash; // using bitwise complement, because -Integer.MIN_VALUE is still negative
-//    }
-//    assert hash >= 0 : "Just absed the hash value, so this should always be true";
-//    hash = hash % processors.length;
-//    assert hash >= 0 : "Mod operation made it negative!";
-//    processors[hash].process(object);
+//    long hash = count % processors.length;
+//    processors[(int)hash].process(object);
 //  }
+  
+  @Override
+  public void process(T object) throws IOException {
+    int hash = typeOrder.hash(object);
+    if (hash < 0) {
+      hash = ~hash; // using bitwise complement, because -Integer.MIN_VALUE is still negative
+    }
+    assert hash >= 0 : "Just absed the hash value, so this should always be true";
+    System.err.println(String.format("hash for \"%s\": %d", object.toString(), hash));
+    hash = hash % processors.length;
+    assert hash >= 0 : "Mod operation made it negative!";
+    System.err.println(String.format("processed by processor %d", hash));
+    processors[hash].process(object);
+  }
 
   @Override
   public void close() throws IOException {
