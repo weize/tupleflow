@@ -13,10 +13,12 @@ public class Splitter<T> implements Processor<T> {
 
   private Processor<T>[] processors;
   private Order<T> typeOrder;
+  long count;
 
   public Splitter(Processor<T>[] processors, Order<T> order) {
     this.processors = processors;
     this.typeOrder = order;
+    count = 0;
   }
 
   public static <S> Splitter<S> splitToFiles(String[] filenames, Order<S> sortOrder, Order<S> hashOrder, CompressionType c) throws IOException, IncompatibleProcessorException {
@@ -77,15 +79,21 @@ public class Splitter<T> implements Processor<T> {
 
   @Override
   public void process(T object) throws IOException {
-    int hash = typeOrder.hash(object);
-    if (hash < 0) {
-      hash = ~hash; // using bitwise complement, because -Integer.MIN_VALUE is still negative
-    }
-    assert hash >= 0 : "Just absed the hash value, so this should always be true";
-    hash = hash % processors.length;
-    assert hash >= 0 : "Mod operation made it negative!";
-    processors[hash].process(object);
+    long hash = count % processors.length;
+    processors[(int)hash].process(object);
   }
+  
+//  @Override
+//  public void process(T object) throws IOException {
+//    int hash = typeOrder.hash(object);
+//    if (hash < 0) {
+//      hash = ~hash; // using bitwise complement, because -Integer.MIN_VALUE is still negative
+//    }
+//    assert hash >= 0 : "Just absed the hash value, so this should always be true";
+//    hash = hash % processors.length;
+//    assert hash >= 0 : "Mod operation made it negative!";
+//    processors[hash].process(object);
+//  }
 
   @Override
   public void close() throws IOException {
