@@ -3,22 +3,21 @@ package org.lemurproject.galago.tupleflow;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 
 /**
  *
- * @author trevor, sjh
+ * @author trevor, sjh, wkong
  */
 public class Splitter<T> implements Processor<T> {
 
     private Processor<T>[] processors;
     private Order<T> typeOrder;
-    long count;
+    long hash;
 
     public Splitter(Processor<T>[] processors, Order<T> order) {
         this.processors = processors;
         this.typeOrder = order;
-        count = 0;
+        hash = 0;
     }
 
     public static <S> Splitter<S> splitToFiles(String[] filenames, Order<S> sortOrder, Order<S> hashOrder, CompressionType c) throws IOException, IncompatibleProcessorException {
@@ -77,29 +76,31 @@ public class Splitter<T> implements Processor<T> {
         return new Splitter<S>(processors, order);
     }
 
+    /**
+     * Using index of the object as hash for splitting.
+     * @param object
+     * @throws IOException 
+     */
     @Override
     public void process(T object) throws IOException {
-        System.err.println(String.format("count for \"%s\": %d", object.toString(), count));
-        long hash = count % processors.length;
-        System.err.println(String.format("processed by processor %d", hash));
+        hash = hash % processors.length;
         processors[(int) hash].process(object);
-        count++;
-
+        hash ++;
     }
 
 //    @Override
-//  public void process(T object) throws IOException {
-//    int hash = typeOrder.hash(object);
-//    if (hash < 0) {
-//      hash = ~hash; // using bitwise complement, because -Integer.MIN_VALUE is still negative
+//    public void process(T object) throws IOException {
+//        int hash = typeOrder.hash(object);
+//        if (hash < 0) {
+//            hash = ~hash; // using bitwise complement, because -Integer.MIN_VALUE is still negative
+//        }
+//        assert hash >= 0 : "Just absed the hash value, so this should always be true";
+//        System.err.println(String.format("hash for \"%s\": %d", object.toString(), hash));
+//        hash = hash % processors.length;
+//        assert hash >= 0 : "Mod operation made it negative!";
+//        System.err.println(String.format("processed by processor %d", hash));
+//        processors[hash].process(object);
 //    }
-//    assert hash >= 0 : "Just absed the hash value, so this should always be true";
-//    System.err.println(String.format("hash for \"%s\": %d", object.toString(), hash));
-//    hash = hash % processors.length;
-//    assert hash >= 0 : "Mod operation made it negative!";
-//    System.err.println(String.format("processed by processor %d", hash));
-//    processors[hash].process(object);
-//  }
 
     @Override
     public void close() throws IOException {

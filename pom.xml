@@ -1,14 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>org.lemurproject</groupId>
-        <artifactId>galago</artifactId>
-        <version>3.6-SNAPSHOT</version>
-    </parent>
     <groupId>org.lemurproject.galago</groupId>
     <artifactId>tupleflow</artifactId>
     <packaging>jar</packaging>
-    <version>3.6-SNAPSHOT</version>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+    </properties>
+    <version>3.6.s-SNAPSHOT</version>
     <name>tupleflow</name>
     <url>http://lemurproject.org/galago.php</url>
     <description>TupleFlow is the distributed computation layer of Galago.</description>
@@ -33,19 +33,28 @@
         <dependency>
             <groupId>net.sf.trove4j</groupId>
             <artifactId>trove4j</artifactId>
+            <version>3.0.3</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
+            <version>7.6.8.v20121106</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
+            <version>1.8</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <version>4.11</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.9.8</version>
         </dependency>
     </dependencies>
     <reporting>
@@ -78,16 +87,11 @@
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
-                <configuration>
-                    <!--<compilerArgument>-Xlint:unchecked</compilerArgument>-->
-                    <source>1.6</source>
-                    <target>1.6</target>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.lemurproject.galago</groupId>
                 <artifactId>tupleflow-typebuilder</artifactId>
-                <version>${project.version}</version>
+                <version>3.6-SNAPSHOT</version>
                 <executions>
                     <execution>
                         <phase>generate-sources</phase>
@@ -112,8 +116,8 @@
                 <configuration>
                     <programs>
                         <program>
-                            <mainClass>org.lemurproject.galago.tupleflow.test.Test </mainClass>
-                            <name>test</name>
+                            <mainClass>org.lemurproject.galago.tupleflow.app.App </mainClass>
+                            <name>tupleflow</name>
                         </program>
                     </programs>
                     <extraJvmArguments>-Xms4g -Xmx4g -Dfile.encoding=UTF-8</extraJvmArguments>
