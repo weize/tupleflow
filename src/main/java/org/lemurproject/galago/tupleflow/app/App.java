@@ -1,18 +1,18 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.tupleflow.app;
 
-import org.lemurproject.galago.tupleflow.GalagoConf;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.reflections.Reflections;
-
 import java.io.PrintStream;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.lemurproject.galago.tupleflow.GalagoConf;
+import org.lemurproject.galago.tupleflow.Parameters;
+import org.reflections.Reflections;
 
 /**
  * @author sjh, irmarc, trevor
@@ -44,6 +44,9 @@ public class App {
       Set<Class<? extends AppFunction>> apps = reflections.getSubTypesOf(AppFunction.class);
 
       for (Class<? extends AppFunction> c : apps) {
+        if (Modifier.isAbstract(c.getModifiers())) {
+            continue;
+        }
         try {
           Constructor<? extends AppFunction> cons = c.getConstructor();
           AppFunction fn = cons.newInstance();
