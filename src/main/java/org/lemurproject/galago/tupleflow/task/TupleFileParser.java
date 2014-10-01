@@ -15,7 +15,7 @@ import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.execution.Verified;
 import org.lemurproject.galago.tupleflow.types.FileName;
-import org.lemurproject.galago.tupleflow.types.TupleflowTask;
+import org.lemurproject.galago.tupleflow.types.TupleflowTuple;
 
 /**
  *
@@ -23,8 +23,8 @@ import org.lemurproject.galago.tupleflow.types.TupleflowTask;
  */
 @Verified
 @InputClass(className = "org.lemurproject.galago.tupleflow.types.FileName")
-@OutputClass(className = "org.lemurproject.galago.tupleflow.types.TupleflowTask")
-public class TaskArgFileParser extends StandardStep<FileName, TupleflowTask> {
+@OutputClass(className = "org.lemurproject.galago.tupleflow.types.TupleflowTuple")
+public class TupleFileParser extends StandardStep<FileName, TupleflowTuple> {
     @Override
     public void process(FileName fileName) throws IOException {    
         FileInputStream stream = new FileInputStream(fileName.filename);
@@ -32,7 +32,7 @@ public class TaskArgFileParser extends StandardStep<FileName, TupleflowTask> {
                     new InputStreamReader(stream));
         String line;
         while ((line = reader.readLine()) != null) {
-            processor.process(new TupleflowTask(line));
+            processor.process(new TupleflowTuple(line));
 
         }
         reader.close();

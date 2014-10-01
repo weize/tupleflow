@@ -1,0 +1,7 @@
+package org.lemurproject.galago.tupleflow.types;
+
+type TupleflowTuple {
+    String fields;
+    
+    order: +fields;
+}

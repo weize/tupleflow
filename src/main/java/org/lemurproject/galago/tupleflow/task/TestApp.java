@@ -5,14 +5,12 @@
  */
 package org.lemurproject.galago.tupleflow.task;
 
-import java.io.BufferedWriter;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import org.lemurproject.galago.tupleflow.InputClass;
+import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.app.AppFunction;
 import org.lemurproject.galago.tupleflow.execution.Verified;
-import org.lemurproject.galago.tupleflow.types.TupleflowTask;
+import org.lemurproject.galago.tupleflow.types.TupleflowTuple;
 
 /**
  *
@@ -37,21 +35,18 @@ public class TestApp extends TaskAppFunction {
     }
 
     @Verified
-    @InputClass(className = "org.lemurproject.galago.tupleflow.types.TupleflowTask")
+    @InputClass(className = "org.lemurproject.galago.tupleflow.types.TupleflowTuple")
+    @OutputClass(className = "org.lemurproject.galago.tupleflow.types.TupleflowTuple")
     public static class WriterContentToFile extends TaskProcessor {
 
         @Override
         public void close() throws IOException {
+            processor.close();
         }
 
         @Override
-        public void process(TupleflowTask task) throws IOException {
-            String[] elems = task.arguments.split("\t");
-
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(elems[0])));
-            writer.write(elems[1]);
-            writer.newLine();
-            writer.close();
+        public void process(TupleflowTuple object) throws IOException {
+            processor.process(object);
         }
 
     }

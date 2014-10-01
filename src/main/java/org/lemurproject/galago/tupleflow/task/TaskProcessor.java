@@ -6,15 +6,17 @@
 package org.lemurproject.galago.tupleflow.task;
 
 import org.lemurproject.galago.tupleflow.InputClass;
-import org.lemurproject.galago.tupleflow.Processor;
+import org.lemurproject.galago.tupleflow.OutputClass;
+import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.execution.Verified;
-import org.lemurproject.galago.tupleflow.types.TupleflowTask;
+import org.lemurproject.galago.tupleflow.types.TupleflowTuple;
 
 /**
  *
  * @author wkong
  */
 @Verified
-@InputClass(className = "org.lemurproject.galago.tupleflow.types.TupleflowTask")
-public abstract class TaskProcessor implements Processor<TupleflowTask> {
+@InputClass(className = "org.lemurproject.galago.tupleflow.types.TupleflowTuple")
+@OutputClass(className = "org.lemurproject.galago.tupleflow.types.TupleflowTuple")
+public abstract class TaskProcessor extends StandardStep<TupleflowTuple, TupleflowTuple> {
 }
